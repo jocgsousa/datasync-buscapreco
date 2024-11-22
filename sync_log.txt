@@ -15,3 +15,12 @@
 [22/11/2024, 08:42:16] Sincronização iniciada.
 [22/11/2024, 08:43:31] Sincronização iniciada.
 [22/11/2024, 09:03:23] Sincronização iniciada.
+[22/11/2024, 09:36:52] Sincronização iniciada.
+[22/11/2024, 09:36:53] Erro durante a sincronização: ORA-00936: expressão não encontrada
+[22/11/2024, 09:36:53] Sincronização finalizada. Duração: 1.324s.
+[22/11/2024, 09:37:10] Sincronização iniciada.
+[22/11/2024, 09:37:11] Erro durante a sincronização: ORA-00936: expressão não encontrada
+[22/11/2024, 09:37:11] Sincronização finalizada. Duração: 0.903s.
+[22/11/2024, 09:37:50] Sincronização iniciada.
+[22/11/2024, 09:38:14] Sincronização iniciada.
+[22/11/2024, 09:42:39] Sincronização iniciada.
