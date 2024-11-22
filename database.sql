@@ -14,7 +14,9 @@ CREATE TABLE produtos (
     codprod INT(10) NOT NULL,
     codauxiliar VARCHAR(20) NOT NULL,
     descricao VARCHAR(200) NOT NULL,
-    pvenda FLOAT(10, 2) NOT NULL
+    pvenda FLOAT(10, 2) NOT NULL,
+    descontofidelidade FLOAT(10, 2) NOT NULL DEFAULT 0,
+    pvendafidelidade FLOAT(10, 2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE aparelhos (
