@@ -24,3 +24,10 @@
 [22/11/2024, 09:37:50] Sincronização iniciada.
 [22/11/2024, 09:38:14] Sincronização iniciada.
 [22/11/2024, 09:42:39] Sincronização iniciada.
+[22/11/2024, 16:25:22] Sincronização iniciada.
+[22/11/2024, 16:25:24] Erro durante a sincronização: ORA-00933: comando SQL não encerrado adequadamente
+[22/11/2024, 16:25:24] Sincronização finalizada. Duração: 1.842s.
+[22/11/2024, 16:25:40] Sincronização iniciada.
+[22/11/2024, 22:07:58] Sincronização iniciada.
+[22/11/2024, 23:31:30] Sincronização concluída com sucesso: 34134 produtos atualizados, 3 produtos registrados.
+[22/11/2024, 23:31:30] Sincronização finalizada. Duração: 5012.951s.

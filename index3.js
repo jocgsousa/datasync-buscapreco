@@ -80,7 +80,17 @@ async function syncData() {
         `SELECT
            NVL(PCDESCONTOFIDELIDADE.PERCDESCONTO, 2) AS DESCONTO,
            ROUND(NVL(PCEMBALAGEM.PVENDA, 0) * (1 - (PCDESCONTOFIDELIDADE.PERCDESCONTO / 100)), 2) AS VALOR_FINAL,
-           PCDESCONTOFIDELIDADE.DTFINAL AS DTFINAL
+           PCDESCONTOFIDELIDADE.DTFINAL AS DTFINAL,
+            CASE 
+              WHEN PCDESCONTOFIDELIDADE.CODPROD = PCPRODUT.CODPROD THEN 6
+              WHEN PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND PCDESCONTOFIDELIDADE.CODEPTO = PCPRODUT.CODEPTO THEN 5
+              WHEN PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND PCDESCONTOFIDELIDADE.CODCATEGORIA = PCPRODUT.CODCATEGORIA THEN 4
+              WHEN PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND PCDESCONTOFIDELIDADE.CODSECAO = PCPRODUT.CODSEC THEN 3
+              WHEN PCDESCONTOFIDELIDADE.CODEPTO = PCPRODUT.CODEPTO THEN 2
+              WHEN PCDESCONTOFIDELIDADE.CODCATEGORIA = PCPRODUT.CODCATEGORIA THEN 1
+              WHEN PCDESCONTOFIDELIDADE.CODSECAO = PCPRODUT.CODSEC THEN 1
+              ELSE 0
+             END AS PRIORIDADE
          FROM
            PCDESCONTOFIDELIDADE
            INNER JOIN PCPRODUT ON PCPRODUT.CODAUXILIAR = :CODBARRAS
@@ -98,7 +108,7 @@ async function syncData() {
              (PCDESCONTOFIDELIDADE.CODPROD = PCPRODUT.CODPROD)
            )
          ORDER BY 
-           PCDESCONTOFIDELIDADE.PERCDESCONTO DESC
+           PRIORIDADE DESC
          FETCH FIRST 1 ROWS ONLY`,
         {
           CODBARRAS: codauxiliar,
@@ -158,10 +168,10 @@ const scheduleTimes = (process.env.SCHEDULE_TIMES || '0 0 * * *').split(','); //
 scheduleTimes.forEach((time) => {
   schedule.scheduleJob(time.trim(), () => {
     console.log(`Sincronização iniciada em: ${new Date().toLocaleString()} para o horário configurado: ${time}`);
-    // syncData();
+    syncData();
   });
 });
 
-syncData();
+// syncData();
 
 console.log(`Sincronizações agendadas para os horários: ${scheduleTimes.join(', ')}`);
