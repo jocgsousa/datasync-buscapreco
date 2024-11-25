@@ -95,21 +95,45 @@ async function syncData() {
            PCDESCONTOFIDELIDADE
            INNER JOIN PCPRODUT ON PCPRODUT.CODAUXILIAR = :CODBARRAS
            INNER JOIN PCEMBALAGEM ON PCEMBALAGEM.CODAUXILIAR = :CODBARRAS
-         WHERE 
-           PCDESCONTOFIDELIDADE.DTFINAL > SYSDATE 
-           AND PCDESCONTOFIDELIDADE.CODFILIAL = :FILIAL
-           AND (
-             (PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND PCDESCONTOFIDELIDADE.CODEPTO = PCPRODUT.CODEPTO) OR  
-             (PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND PCDESCONTOFIDELIDADE.CODCATEGORIA = PCPRODUT.CODCATEGORIA) OR 
-             (PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND PCDESCONTOFIDELIDADE.CODSECAO = PCPRODUT.CODSEC) OR 
-             (PCDESCONTOFIDELIDADE.CODEPTO = PCPRODUT.CODEPTO) OR 
-             (PCDESCONTOFIDELIDADE.CODCATEGORIA = PCPRODUT.CODCATEGORIA) OR 
-             (PCDESCONTOFIDELIDADE.CODSECAO = PCPRODUT.CODSEC) OR 
-             (PCDESCONTOFIDELIDADE.CODPROD = PCPRODUT.CODPROD)
-           )
-         ORDER BY 
-           PRIORIDADE DESC
-         FETCH FIRST 1 ROWS ONLY`,
+WHERE 
+    PCDESCONTOFIDELIDADE.DTFINAL > SYSDATE 
+    AND PCDESCONTOFIDELIDADE.CODFILIAL = :FILIAL
+    AND (
+        -- Valida combinações exatas
+        (
+            NVL(PCDESCONTOFIDELIDADE.CODFORNEC, -1) = NVL(PCPRODUT.CODFORNEC, -1) AND
+            NVL(PCDESCONTOFIDELIDADE.CODEPTO, -1) = NVL(PCPRODUT.CODEPTO, -1) AND
+            NVL(PCDESCONTOFIDELIDADE.CODCATEGORIA, -1) = NVL(PCPRODUT.CODCATEGORIA, -1) AND
+            NVL(PCDESCONTOFIDELIDADE.CODSECAO, -1) = NVL(PCPRODUT.CODSEC, -1) AND
+            -- Certifica que o desconto fidelidade tem múltiplos atributos preenchidos
+            (CASE 
+                WHEN PCDESCONTOFIDELIDADE.CODFORNEC IS NOT NULL THEN 1 ELSE 0 END +
+                CASE 
+                    WHEN PCDESCONTOFIDELIDADE.CODEPTO IS NOT NULL THEN 1 ELSE 0 END +
+                CASE 
+                    WHEN PCDESCONTOFIDELIDADE.CODCATEGORIA IS NOT NULL THEN 1 ELSE 0 END +
+                CASE 
+                    WHEN PCDESCONTOFIDELIDADE.CODSECAO IS NOT NULL THEN 1 ELSE 0 END
+            ) > 1
+        )
+        OR
+        -- Valida descontos com apenas um atributo definido
+        (
+            -- Verifica que apenas um atributo está preenchido e ele coincide
+            (PCDESCONTOFIDELIDADE.CODFORNEC IS NOT NULL AND PCDESCONTOFIDELIDADE.CODFORNEC = PCPRODUT.CODFORNEC AND 
+             PCDESCONTOFIDELIDADE.CODEPTO IS NULL AND PCDESCONTOFIDELIDADE.CODCATEGORIA IS NULL AND PCDESCONTOFIDELIDADE.CODSECAO IS NULL) OR
+            (PCDESCONTOFIDELIDADE.CODEPTO IS NOT NULL AND PCDESCONTOFIDELIDADE.CODEPTO = PCPRODUT.CODEPTO AND 
+             PCDESCONTOFIDELIDADE.CODFORNEC IS NULL AND PCDESCONTOFIDELIDADE.CODCATEGORIA IS NULL AND PCDESCONTOFIDELIDADE.CODSECAO IS NULL) OR
+            (PCDESCONTOFIDELIDADE.CODCATEGORIA IS NOT NULL AND PCDESCONTOFIDELIDADE.CODCATEGORIA = PCPRODUT.CODCATEGORIA AND 
+             PCDESCONTOFIDELIDADE.CODFORNEC IS NULL AND PCDESCONTOFIDELIDADE.CODEPTO IS NULL AND PCDESCONTOFIDELIDADE.CODSECAO IS NULL) OR
+            (PCDESCONTOFIDELIDADE.CODSECAO IS NOT NULL AND PCDESCONTOFIDELIDADE.CODSECAO = PCPRODUT.CODSEC AND 
+             PCDESCONTOFIDELIDADE.CODFORNEC IS NULL AND PCDESCONTOFIDELIDADE.CODEPTO IS NULL AND PCDESCONTOFIDELIDADE.CODCATEGORIA IS NULL)
+        )
+    )
+ORDER BY 
+    PRIORIDADE DESC
+FETCH FIRST 1 ROWS ONLY
+`,
         {
           CODBARRAS: codauxiliar,
           FILIAL: 2
@@ -120,9 +144,9 @@ async function syncData() {
       const pvendafidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][1] : pvenda;
       const dtfinalfidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][2] : '';
 
-    //   console.log(`COD: ${codprod}, AUX: ${codauxiliar}, DESC: ${descricao}, DF: ${descontofidelidade}, PVENDA: ${pvenda}, PVENDAF: ${pvendafidelidade}`);
+      //   console.log(`COD: ${codprod}, AUX: ${codauxiliar}, DESC: ${descricao}, DF: ${descontofidelidade}, PVENDA: ${pvenda}, PVENDAF: ${pvendafidelidade}`);
 
-     // Verificar se o produto já existe
+      // Verificar se o produto já existe
       const [existing] = await mysqlConnection.execute(selectQuery, [codauxiliar]);
 
       if (existing.length > 0) {
@@ -168,10 +192,10 @@ const scheduleTimes = (process.env.SCHEDULE_TIMES || '0 0 * * *').split(','); //
 scheduleTimes.forEach((time) => {
   schedule.scheduleJob(time.trim(), () => {
     console.log(`Sincronização iniciada em: ${new Date().toLocaleString()} para o horário configurado: ${time}`);
-    syncData();
+    // syncData();
   });
 });
 
-// syncData();
+syncData();
 
 console.log(`Sincronizações agendadas para os horários: ${scheduleTimes.join(', ')}`);
