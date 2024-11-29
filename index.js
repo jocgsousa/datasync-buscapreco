@@ -200,7 +200,7 @@ ORDER BY
         AND PCOFERTAPROGRAMADAI.DATAEXCLUSAO IS NULL
         AND (TRUNC(SYSDATE) BETWEEN PCOFERTAPROGRAMADAC.DTINICIAL AND PCOFERTAPROGRAMADAC.DTFINAL) AND (PCOFERTAPROGRAMADAC.DTCANCEL IS NULL)
       `, {
-        CODAUXILIAR: '7896025536661'
+        CODAUXILIAR: codauxiliar
       });
 
       const oferta_filiais_offers = ofertaresult.rows.length;
@@ -258,10 +258,10 @@ const scheduleTimes = (process.env.SCHEDULE_TIMES || '0 0 * * *').split(','); //
 scheduleTimes.forEach((time) => {
   schedule.scheduleJob(time.trim(), () => {
     console.log(`Sincronização iniciada em: ${new Date().toLocaleString()} para o horário configurado: ${time}`);
-    // syncData();
+    syncData();
   });
 });
 
-syncData();
+// syncData();
 
 console.log(`Sincronizações agendadas para os horários: ${scheduleTimes.join(', ')}`);
