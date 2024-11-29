@@ -16,7 +16,15 @@ CREATE TABLE produtos (
     descricao VARCHAR(200) NOT NULL,
     pvenda FLOAT(10, 2) NOT NULL,
     descontofidelidade FLOAT(10, 2) NOT NULL DEFAULT 0,
-    pvendafidelidade FLOAT(10, 2) NOT NULL DEFAULT 0
+    pvendafidelidade FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filial_2 FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filial_3 FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filial_4 FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filial_5 FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filial_6 FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filial_7 FLOAT(10, 2) NOT NULL DEFAULT 0,
+    oferta_filiais_offers INT(10) NOT NULL DEFAULT 0,
+
 );
 
 CREATE TABLE aparelhos (

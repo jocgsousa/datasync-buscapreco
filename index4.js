@@ -63,12 +63,12 @@ async function syncData() {
     // Inserir ou atualizar os dados no MySQL
     const selectQuery = `SELECT * FROM produtos WHERE codauxiliar = ?`;
     const insertQuery = `
-      INSERT INTO produtos (codprod, codauxiliar, descricao, pvenda, descontofidelidade, pvendafidelidade, dtfinalfidelidade) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO produtos (codprod, codauxiliar, descricao, pvenda, descontofidelidade, pvendafidelidade, dtfinalfidelidade, oferta_filial_2, oferta_filial_3, oferta_filial_4, oferta_filial_5, oferta_filial_6, oferta_filial_7, oferta_filiais_offers) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const updateQuery = `
       UPDATE produtos 
-      SET descricao = ?, pvenda = ?, descontofidelidade = ?, pvendafidelidade = ?, dtfinalfidelidade = ? 
+      SET descricao = ?, pvenda = ?, descontofidelidade = ?, pvendafidelidade = ?, dtfinalfidelidade = ?, oferta_filial_2 = ?, oferta_filial_3 = ? , oferta_filial_4 = ?, oferta_filial_5 = ?, oferta_filial_6 = ?, oferta_filial_7 = ?, oferta_filiais_offers = ? 
       WHERE codauxiliar = ?
     `;
 
@@ -181,19 +181,48 @@ ORDER BY
       const pvendafidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][1] : pvenda;
       const dtfinalfidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][2] : '';
 
-      //   console.log(`COD: ${codprod}, AUX: ${codauxiliar}, DESC: ${descricao}, DF: ${descontofidelidade}, PVENDA: ${pvenda}, PVENDAF: ${pvendafidelidade}`);
+
+
+      // OFERTAS
+      const ofertaresult = await oracleConnection.execute(`
+        SELECT PCOFERTAPROGRAMADAI.CODOFERTA, 
+        PCOFERTAPROGRAMADAI.CODFILIAL, 
+        PCOFERTAPROGRAMADAI.CODAUXILIAR, 
+        PCOFERTAPROGRAMADAI.VLOFERTA, 
+        PCOFERTAPROGRAMADAI.VLOFERTAATAC, 
+        PCOFERTAPROGRAMADAI.MOTIVOOFERTA, 
+        PCOFERTAPROGRAMADAI.QTMAXVENDA, 
+        PCOFERTAPROGRAMADAI.DATAEXCLUSAO,
+        PCOFERTAPROGRAMADAC.DESCOFERTA
+        FROM PCOFERTAPROGRAMADAI
+        INNER JOIN PCOFERTAPROGRAMADAC on PCOFERTAPROGRAMADAC.CODOFERTA = PCOFERTAPROGRAMADAI.CODOFERTA 
+        WHERE PCOFERTAPROGRAMADAI.CODAUXILIAR = :CODAUXILIAR  
+        AND PCOFERTAPROGRAMADAI.DATAEXCLUSAO IS NULL
+        AND (TRUNC(SYSDATE) BETWEEN PCOFERTAPROGRAMADAC.DTINICIAL AND PCOFERTAPROGRAMADAC.DTFINAL) AND (PCOFERTAPROGRAMADAC.DTCANCEL IS NULL)
+      `, {
+        CODAUXILIAR: '7896025536661'
+      });
+
+      const oferta_filiais_offers = ofertaresult.rows.length;
+      const oferta_filial_1 = ofertaresult.rows.length > 0 ? ofertaresult.rows[0][3] : 0;
+      const oferta_filial_2 = ofertaresult.rows.length > 1 ? ofertaresult.rows[1][3] : 0;
+      const oferta_filial_3 = ofertaresult.rows.length > 2 ? ofertaresult.rows[2][3] : 0;
+      const oferta_filial_4 = ofertaresult.rows.length > 3 ? ofertaresult.rows[3][3] : 0;
+      const oferta_filial_5 = ofertaresult.rows.length > 4 ? ofertaresult.rows[4][3] : 0;
+      const oferta_filial_6 = ofertaresult.rows.length > 5 ? ofertaresult.rows[5][3] : 0;
+      const oferta_filial_7 = ofertaresult.rows.length > 6 ? ofertaresult.rows[6][3] : 0;
 
       // Verificar se o produto já existe
       const [existing] = await mysqlConnection.execute(selectQuery, [codauxiliar]);
 
       if (existing.length > 0) {
         // Produto existe, atualizar descrição, preço e desconto
-        await mysqlConnection.execute(updateQuery, [descricao, pvenda, descontofidelidade, pvendafidelidade, dtfinalfidelidade, codauxiliar]);
+        await mysqlConnection.execute(updateQuery, [descricao, pvenda, descontofidelidade, pvendafidelidade, dtfinalfidelidade, oferta_filial_2, oferta_filial_3, oferta_filial_4, oferta_filial_5, oferta_filial_6, oferta_filial_7, oferta_filiais_offers, codauxiliar]);
         updatedCount++;
         console.log(`UPDATE: AUX: ${codauxiliar}, DESC: ${descricao}, DFIDELIDADE: ${descontofidelidade}, PVENDA: ${pvenda}, PVENDAF: ${pvendafidelidade}`);
       } else {
         // Produto não existe, inserir novo registro
-        await mysqlConnection.execute(insertQuery, [codprod, codauxiliar, descricao, pvenda, descontofidelidade, pvendafidelidade, dtfinalfidelidade]);
+        await mysqlConnection.execute(insertQuery, [codprod, codauxiliar, descricao, pvenda, descontofidelidade, pvendafidelidade, dtfinalfidelidade, oferta_filial_2, oferta_filial_3, oferta_filial_4, oferta_filial_5, oferta_filial_6, oferta_filial_7, oferta_filiais_offers]);
         insertedCount++;
         console.log(`INSERT: AUX: ${codauxiliar}, DESC: ${descricao}, DFIDELIDADE: ${descontofidelidade}, PVENDA: ${pvenda}, PVENDAF: ${pvendafidelidade}`);
       }
