@@ -23,8 +23,7 @@ CREATE TABLE produtos (
     oferta_filial_5 FLOAT(10, 2) NOT NULL DEFAULT 0,
     oferta_filial_6 FLOAT(10, 2) NOT NULL DEFAULT 0,
     oferta_filial_7 FLOAT(10, 2) NOT NULL DEFAULT 0,
-    oferta_filiais_offers INT(10) NOT NULL DEFAULT 0,
-
+    oferta_filiais_offers INT(10) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE aparelhos (
@@ -32,6 +31,23 @@ CREATE TABLE aparelhos (
     codaparelho VARCHAR(200) NOT NULL,
     autorized BOOLEAN
 );
+
+CREATE TABLE pcativi (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    codativi VARCHAR(200) NOT NULL,
+    ramo VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+); 
+
+CREATE TABLE pccidade (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    codcidade VARCHAR(200) NOT NULL,
+    nomecidade VARCHAR(255) NOT NULL,
+    uf VARCHAR(2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+); 
 
 INSERT INTO
   `usuarios` (

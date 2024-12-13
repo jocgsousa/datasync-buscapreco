@@ -262,6 +262,6 @@ scheduleTimes.forEach((time) => {
   });
 });
 
-// syncData();
+syncData();
 
 console.log(`Sincronizações agendadas para os horários: ${scheduleTimes.join(', ')}`);
