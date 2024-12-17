@@ -47,7 +47,7 @@ async function syncData() {
        FROM PCEMBALAGEM 
        INNER JOIN PCPRODUT 
        ON PCPRODUT.CODPROD = PCEMBALAGEM.CODPROD 
-       WHERE PCEMBALAGEM.CODFILIAL = 1 AND PCEMBALAGEM.PVENDA IS NOT NULL`
+       WHERE PCEMBALAGEM.CODFILIAL = 7 AND PCEMBALAGEM.PVENDA IS NOT NULL`
     );
     console.log(`Consulta ao Oracle retornou ${result.rows.length} registros.`);
 
