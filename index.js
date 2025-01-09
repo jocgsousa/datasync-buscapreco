@@ -43,7 +43,8 @@ async function syncData() {
          PCEMBALAGEM.CODPROD,
          PCEMBALAGEM.CODAUXILIAR,
          PCPRODUT.DESCRICAO,
-         PCEMBALAGEM.PVENDA
+         PCEMBALAGEM.PVENDA,
+         PCPRODUT.CODCATEGORIA
        FROM PCEMBALAGEM 
        INNER JOIN PCPRODUT 
        ON PCPRODUT.CODPROD = PCEMBALAGEM.CODPROD 
@@ -73,7 +74,7 @@ async function syncData() {
     `;
 
     for (const row of result.rows) {
-      const [codprod, codauxiliar, descricao, pvenda] = row;
+      const [codprod, codauxiliar, descricao, pvenda, codcategoria] = row;
 
       // Consultar desconto fidelidade no Oracle usando o script fornecido
       const descontoResult = await oracleConnection.execute(
@@ -177,7 +178,15 @@ ORDER BY
         }
       );
 
-      const descontofidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][0] : 0;
+      let descontofidelidade;
+
+
+      if(codcategoria === 272){
+        descontofidelidade = 0;
+      }else {
+         descontofidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][0] : 0;
+      }
+
       const pvendafidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][1] : pvenda;
       const dtfinalfidelidade = descontoResult.rows.length > 0 ? descontoResult.rows[0][2] : '';
 
